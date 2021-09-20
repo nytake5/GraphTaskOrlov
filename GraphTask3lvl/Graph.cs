@@ -1,4 +1,4 @@
-﻿using System;
+﻿    using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,15 +12,15 @@ namespace GraphTask3lvl
     {
         public class Node
         {
-            public object name { get; set; }
+            public string name { get; set; }
             public Dictionary<object, object> inf { get; set; }
             public Node() { }
-            public Node(object name)
+            public Node(string name)
             {
                 this.name = name;
                 this.inf = new Dictionary<object, object>();
             }
-            public Node(object name, Dictionary<object, object> inf)
+            public Node(string name, Dictionary<object, object> inf)
             {
                 this.name = name;
                 this.inf = inf;
@@ -48,17 +48,30 @@ namespace GraphTask3lvl
             }
         }
 
-        public string name;
-        public List<Node> nodes;
+        public Dictionary<string ,Node> nodes;
 
-        public Graph()
-        { }
         public Graph(string name)
+        {
+            Dictionary<object, object> infTemp = new Dictionary<object, object>();
+            nodes.Add(name)
+        }
+        public Graph()
         {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             using (StreamReader streamReader = new StreamReader(openFileDialog.FileName))
             {
                 string line;
+                line = streamReader.ReadLine() ?? null;
+                if (line == null)
+                {
+                    this.name = line;
+                }
+                else
+                { 
+                    throw new Exception("Данные отсутствут");
+                    this.name = "";
+                }
+                    
                 while ((line = streamReader.ReadLine()) != null)
                 {
                     string[] vs = line.Split(' ');
@@ -74,7 +87,23 @@ namespace GraphTask3lvl
             }
         }
 
-        public void Add(string line)
+        public Graph(Graph graph)
+        {
+            this.name += graph.name;
+            foreach (var item in graph.nodes)
+            {
+                string nameNodes = "";
+                nameNodes += item.name;
+                Dictionary<object, object> infTemp = new Dictionary<object, object>();
+                foreach (var el in item.inf)
+                {
+                    infTemp.Add(el.Key, el.Value);
+                }
+                this.nodes.Add(new Node(nameNodes, infTemp));
+            }
+        }
+        // make bool result
+        public void AddNode(string line)
         {
             string[] vs = line.Split(' ');
             Dictionary<object, object> infTemp = new Dictionary<object, object>();
@@ -85,6 +114,80 @@ namespace GraphTask3lvl
             }
             Node tempNode = new Node(vs[0], infTemp);
             nodes.Add(tempNode);
+        }
+
+        public void AddRebro(string line)
+        {
+            string[] vs = line.Split(' ');
+            //будем добавлять по названию вершины в графе: "имя вершины название_вершины/вес" 
+            foreach (var item in this.nodes)
+            {
+                if (item.name.Equals(vs[0]))
+                {
+                    string[] vsTemp = vs[1].Split('/'); 
+                    item.inf.Add(vsTemp[0], vsTemp[1]);
+                }
+            }
+        }
+
+        public void RemoveNode(string line)
+        {
+            //будем удалять по названию вершины в графе
+            Node removeItem = new Node();
+            bool flag = false;
+            foreach (var item in this.nodes)
+            {
+                if (item.name.Equals(line))
+                {
+                    removeItem = item;
+                    flag = true;
+                }
+            }
+            this.nodes.Remove(removeItem);
+            if (!flag)
+            {
+                throw new Exception("Данные отсутствут");
+            }
+        }
+
+        public void RemoveRebro(string line)
+        {
+            string[] vs = line.Split(' ');
+            bool flag = false;
+            //будем удалять по названию вершины в графе: "имя вершины название_вершины"
+            foreach (var item in this.nodes)
+            {
+                if (item.name.Equals(vs[0]))
+                {
+                    KeyValuePair<object, object> removeItem = new KeyValuePair<object, object>();
+                    foreach (var el in item.inf)
+                    {
+                        if (((string)el.Key).Equals(vs))
+                        {
+                            removeItem = el;
+                            flag = true;
+                        }
+                    }
+                    item.inf.Remove(removeItem);
+                }
+            }
+            if (!flag)
+            {
+                throw new Exception("Данные отсутствут");
+            }
+        }
+
+        public void SaveAs()
+        {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            using (StreamWriter streamWriter = new StreamWriter(saveFileDialog.FileName))
+            {
+                streamWriter.WriteLine(this.name);
+                foreach (var item in this.nodes)
+                {
+                    streamWriter.WriteLine(item.ToString());
+                }       
+            }
         }
     }
 }
