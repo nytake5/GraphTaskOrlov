@@ -12,25 +12,23 @@ namespace GraphTask3lvl
     {
         public class Node
         {
-            public string name { get; set; }
             public Dictionary<object, object> inf { get; set; }
-            public Node() { }
-            public Node(string name)
+            public Node()
             {
-                this.name = name;
                 this.inf = new Dictionary<object, object>();
             }
-            public Node(string name, Dictionary<object, object> inf)
+            public Node(Dictionary<object, object> inf)
             {
-                this.name = name;
                 this.inf = inf;
+            }
+            public Node(Node node)
+            {
+                this.inf = new Dictionary<object, object>(node.inf);
             }
 
             public override string ToString()
             {
                 StringBuilder res = new StringBuilder();
-                res.Append(name);
-                res.Append(" ");
                 foreach (var item in inf)
                 {
                     res.Append(item.Key);
@@ -48,12 +46,13 @@ namespace GraphTask3lvl
             }
         }
 
+        public string name;
         public Dictionary<string ,Node> nodes;
 
         public Graph(string name)
         {
-            Dictionary<object, object> infTemp = new Dictionary<object, object>();
-            nodes.Add(name)
+            this.name = name;
+            nodes = new Dictionary<string, Node>();
         }
         public Graph()
         {
@@ -81,8 +80,8 @@ namespace GraphTask3lvl
                         string[] vsTemp = vs[i].Split('/');
                         infTemp.Add(vsTemp[0], vsTemp[1]);
                     }
-                    Node tempNode = new Node(vs[0], infTemp);
-                    nodes.Add(tempNode);
+                    Node tempNode = new Node(infTemp);
+                    nodes.Add(vs[0], tempNode);
                 }
             }
         }
@@ -93,27 +92,32 @@ namespace GraphTask3lvl
             foreach (var item in graph.nodes)
             {
                 string nameNodes = "";
-                nameNodes += item.name;
-                Dictionary<object, object> infTemp = new Dictionary<object, object>();
-                foreach (var el in item.inf)
-                {
-                    infTemp.Add(el.Key, el.Value);
-                }
-                this.nodes.Add(new Node(nameNodes, infTemp));
+                
+                nameNodes += item.Key;
+                Node valueNodes = new Node(item.Value);
+                this.nodes.Add(nameNodes, valueNodes);
             }
         }
-        // make bool result
-        public void AddNode(string line)
+        public bool AddNode(string line)
         {
+            char[] masSplit = { '/', '-', '.', ',' };
+            bool flag = false;
             string[] vs = line.Split(' ');
             Dictionary<object, object> infTemp = new Dictionary<object, object>();
             for (int i = 1; i < vs.Length; i++)
             {
-                string[] vsTemp = vs[i].Split('/');
-                infTemp.Add(vsTemp[0], vsTemp[1]);
+                string[] vsTemp = vs[i].Split(masSplit);
+                try
+                { 
+                    infTemp.Add(vsTemp[0], vsTemp[1]);
+                    flag = true;
+                }
+                catch
+                {
+                    flag = false;
+                }
             }
-            Node tempNode = new Node(vs[0], infTemp);
-            nodes.Add(tempNode);
+            return flag;
         }
 
         public void AddRebro(string line)
@@ -122,45 +126,41 @@ namespace GraphTask3lvl
             //будем добавлять по названию вершины в графе: "имя вершины название_вершины/вес" 
             foreach (var item in this.nodes)
             {
-                if (item.name.Equals(vs[0]))
+                if (item.Key == vs[0])
                 {
-                    string[] vsTemp = vs[1].Split('/'); 
-                    item.inf.Add(vsTemp[0], vsTemp[1]);
+                    string[] vsTemp = vs[1].Split('/');
+                    item.Value.inf.Add(vsTemp[0], vsTemp[1]);
                 }
             }
         }
 
-        public void RemoveNode(string line)
+        public bool RemoveNode(string line)
         {
             //будем удалять по названию вершины в графе
             Node removeItem = new Node();
             bool flag = false;
             foreach (var item in this.nodes)
             {
-                if (item.name.Equals(line))
+                if (item.Key.Equals(line))
                 {
-                    removeItem = item;
                     flag = true;
+                    this.nodes.Remove(item.Key);
                 }
             }
-            this.nodes.Remove(removeItem);
-            if (!flag)
-            {
-                throw new Exception("Данные отсутствут");
-            }
+            return flag;
         }
 
-        public void RemoveRebro(string line)
+        public bool RemoveRebro(string line)
         {
             string[] vs = line.Split(' ');
             bool flag = false;
             //будем удалять по названию вершины в графе: "имя вершины название_вершины"
             foreach (var item in this.nodes)
             {
-                if (item.name.Equals(vs[0]))
+                if (item.Key.Equals(vs[0]))
                 {
                     KeyValuePair<object, object> removeItem = new KeyValuePair<object, object>();
-                    foreach (var el in item.inf)
+                    foreach (var el in item.Value.inf)
                     {
                         if (((string)el.Key).Equals(vs))
                         {
@@ -168,13 +168,10 @@ namespace GraphTask3lvl
                             flag = true;
                         }
                     }
-                    item.inf.Remove(removeItem);
+                    item.Value.inf.Remove(removeItem);
                 }
             }
-            if (!flag)
-            {
-                throw new Exception("Данные отсутствут");
-            }
+            return flag;
         }
 
         public void SaveAs()
@@ -185,7 +182,7 @@ namespace GraphTask3lvl
                 streamWriter.WriteLine(this.name);
                 foreach (var item in this.nodes)
                 {
-                    streamWriter.WriteLine(item.ToString());
+                    streamWriter.WriteLine(item.Key + " " + item.Value.ToString());
                 }       
             }
         }
