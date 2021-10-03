@@ -215,25 +215,38 @@ namespace GraphTask3lvl
         public bool RemoveRebro(string line)
         {
             string[] vs = line.Split(' ');
-            bool flag = false;
             //будем удалять по названию вершины в графе: "имя вершины название_вершины"
-            foreach (var item in this.nodes)
-            {
-                if (item.Key.Equals(vs[0]))
+            if (this.isOrient)
+            { 
+                foreach (var item in this.nodes)
                 {
-                    KeyValuePair<object, object> removeItem = new KeyValuePair<object, object>();
-                    foreach (var el in item.Value.inf)
+                    if (item.Key.Equals(vs[0]))
                     {
-                        if (((string)el.Key).Equals(vs))
-                        {
-                            removeItem = el;
-                            flag = true;
-                        }
+                        return item.Value.inf.Remove(vs[1]);
                     }
-                    item.Value.inf.Remove(removeItem);
                 }
+                return false;
             }
-            return flag;
+            else
+            {
+                bool flag1 = false,
+                    flag2 = false;
+
+                foreach (var item in this.nodes)
+                {
+                    if (item.Key.Equals(vs[0]))
+                    {
+                        flag1 = item.Value.inf.Remove(vs[1]);
+                        
+                    }
+                    if (item.Key.Equals(vs[1]))
+                    {
+                        flag2 = item.Value.inf.Remove(vs[0]);
+
+                    }
+                }
+                return flag1 & flag2;
+            }
         }
 
         public void SaveAs()

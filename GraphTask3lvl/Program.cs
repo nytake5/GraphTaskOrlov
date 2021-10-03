@@ -70,7 +70,7 @@ namespace GraphTask3lvl
                         Console.WriteLine("");
                         break;
                     case 4:
-                        Console.WriteLine("");
+                        Console.WriteLine("Введите название вершины и ребро");
                         line = Console.ReadLine();
                         if (graph.RemoveRebro(line))
                         {
