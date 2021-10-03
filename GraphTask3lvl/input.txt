@@ -1,1 +1,2 @@
-﻿moskva saratov/700 piter/400 samara/800 kiev/900
+﻿Russia 1
+moskva saratov/700 piter/400 samara/800 kiev/900
