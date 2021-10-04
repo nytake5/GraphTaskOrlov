@@ -50,7 +50,8 @@ namespace GraphTask3lvl
         }
 
         public string name;
-        public bool isOrient = true;
+        private bool isOrient = true;
+        private bool isSuspend = true;
         public Dictionary<string, Node> nodes;
         public Graph(string FileLine)
         {
@@ -66,6 +67,10 @@ namespace GraphTask3lvl
                     if (int.Parse(temp[1]) == 0)
                     {
                         this.isOrient = false;
+                    }
+                    if (int.Parse(temp[2]) == 0)
+                    {
+                        this.isSuspend = false;
                     }
 
                 }
@@ -90,43 +95,12 @@ namespace GraphTask3lvl
         }
         public Graph()
         {
-            string FileName = @"C:\Users\denzi\source\repos\GraphTask3lvl\GraphTask3lvl\input.txt";
-            using (StreamReader streamReader = new StreamReader(FileName))
-            {
-                string line;
-                line = streamReader.ReadLine() ?? null;
-                string[] temp = line.Split();
-                if (temp[0] != null)
-                {
-                    this.name = temp[0];
-                    if (int.Parse(temp[1]) == 0)
-                    {
-                        this.isOrient = false;
-                    }
-                    
-                }
-                else
-                {
-                    this.name = "";
-                }
-                nodes = new Dictionary<string, Node>();
-                while ((line = streamReader.ReadLine()) != null)
-                {
-                    string[] vs = line.Split(' ');
-                    Dictionary<object, object> infTemp = new Dictionary<object, object>();
-                    for (int i = 1; i < vs.Length; i++)
-                    {
-                        string[] vsTemp = vs[i].Split('/');
-                        infTemp.Add(vsTemp[0], vsTemp[1]);
-                    }
-                    Node tempNode = new Node(infTemp);
-                    nodes.Add(vs[0], tempNode);
-                }
-            }
+            name = "";
+            nodes = new Dictionary<string, Node>();
         }
         public Graph(Graph graph)
-        {
-            this.name += graph.name;
+        {   
+            this.name = String.Copy(graph.name);
             foreach (var item in graph.nodes)
             {
                 string nameNodes = "";
@@ -237,12 +211,10 @@ namespace GraphTask3lvl
                     if (item.Key.Equals(vs[0]))
                     {
                         flag1 = item.Value.inf.Remove(vs[1]);
-                        
                     }
                     if (item.Key.Equals(vs[1]))
                     {
                         flag2 = item.Value.inf.Remove(vs[0]);
-
                     }
                 }
                 return flag1 & flag2;
@@ -251,16 +223,30 @@ namespace GraphTask3lvl
 
         public void SaveAs()
         {
-            string FileName = @"C:\Users\denzi\source\repos\GraphTask3lvl\GraphTask3lvl\output.txt";
+            string FileName = @"C:\Users\orlovda\source\repos\graph\GraphTaskOrlov\GraphTask3lvl\output.txt";
             using (StreamWriter streamWriter = new StreamWriter(FileName))
             {
                 if (isOrient)
                 {
-                    streamWriter.WriteLine(this.name + "1");
+                    if (isSuspend)
+                    {
+                        streamWriter.WriteLine(this.name + " " + "1" + " " + " 1");
+                    }
+                    else
+                    {
+                        streamWriter.WriteLine(this.name + " " + "1" + " " + " 0");
+                    }
                 }
                 else
                 {
-                    streamWriter.WriteLine(this.name + "0");
+                    if (isSuspend)
+                    {
+                        streamWriter.WriteLine(this.name + " " + "0" + " " + " 1");
+                    }
+                    else
+                    {
+                        streamWriter.WriteLine(this.name + " " + "0" + " " + " 0");
+                    }
                 }
                 foreach (var item in this.nodes)
                 {

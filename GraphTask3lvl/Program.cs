@@ -10,7 +10,7 @@ namespace GraphTask3lvl
     {
         static void Main(string[] args)
         {
-            Graph graph = new Graph();
+            Graph graph = new Graph(@"C:\Users\orlovda\source\repos\graph\GraphTaskOrlov\GraphTask3lvl\input.txt");
 
             string line = Console.ReadLine();
             while (!Console.ReadKey().Equals(ConsoleKey.Escape))
