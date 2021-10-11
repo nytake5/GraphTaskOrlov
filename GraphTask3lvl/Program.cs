@@ -26,6 +26,9 @@ namespace GraphTask3lvl
                 Console.WriteLine("4 - удалить ребро");
                 Console.WriteLine("5 - показать матрицу смежности");
                 Console.WriteLine("6 - сохранить как");
+                Console.WriteLine("7 - Вывести те вершины орграфа, которые " +
+                    "являются одновременно заходящими и выходящими для заданной вершины.");
+                Console.WriteLine("8 - Вывести все вершины орграфа, смежные с данной.");
                 int k;
                 int.TryParse(Console.ReadLine(), out k);
                
@@ -98,6 +101,24 @@ namespace GraphTask3lvl
                         break;
                     case 6:
                         graph.SaveAs();
+                        break;
+                    case 7:
+                        Console.WriteLine("Введите название вершины:");
+                        string name = Console.ReadLine();
+                        string[] arrAns = graph.FindZahodIshod(name);
+                        foreach (var item in arrAns)
+                        {
+                            Console.Write(item + " ");
+                        }
+                        break;
+                    case 8:
+                        Console.WriteLine("Введите название вершины:");
+                        name = Console.ReadLine();
+                        arrAns = graph.FindSmej(name);
+                        foreach (var item in arrAns)
+                        {
+                            Console.Write(item + " ");
+                        }
                         break;
                     default:
                         Console.WriteLine("Попробуйте снова");

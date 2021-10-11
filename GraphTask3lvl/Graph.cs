@@ -334,6 +334,35 @@ namespace GraphTask3lvl
             }
         }
 
+        //13 task 1a 1
+        public string[] FindZahodIshod(string nameNode)
+        {
+            HashSet<string> arr = new HashSet<string>();
+            foreach (var item in nodes)
+            {
+                object o = new object();
+                if (this.FindRebro(item.Key, nameNode, out o) && this.FindRebro(nameNode, item.Key, out o))
+                {
+                    arr.Add(item.Key);
+                }       
+            }
+            return arr.ToArray();
+        }
+        //14 task 1a 2
+        public string[] FindSmej(string nameNode)
+        {
+            HashSet<string> arr = new HashSet<string>();
+            foreach (var item in nodes)
+            {
+                object o = new object();
+                if (this.FindRebro(item.Key, nameNode, out o) || this.FindRebro(nameNode, item.Key, out o))
+                {
+                    arr.Add(item.Key);
+                }
+            }
+            return arr.ToArray();
+        }
+
         public Dictionary<string, Node> GetGraph()
         {
             return nodes;
