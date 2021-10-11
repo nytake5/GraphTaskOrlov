@@ -114,6 +114,10 @@ namespace GraphTask3lvl
             char[] masSplit = { '/', '-', '.', ',' };
             bool flag = false;
             string[] vs = line.Split(' ');
+            if (this.FindNode(vs[0]))
+            {
+                return false;
+            }
             Dictionary<object, object> infTemp = new Dictionary<object, object>();
             for (int i = 1; i < vs.Length; i++)
             {
@@ -136,7 +140,59 @@ namespace GraphTask3lvl
 
             return flag;
         }
+        public string[,] MatrixSmej()
+        {
+            string[] name = nodes.Keys.ToArray();
+            string[,] arr = new string[nodes.Count + 1, nodes.Count + 1];
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                arr[0, i + 1] = name[i];
+                arr[i + 1, 0] = name[i];
+            }
+            if (isOrient)
+            {
+                for (int i = 1; i < nodes.Count + 1; i++)
+                {
+                    for (int j = 1; j < nodes.Count + 1; j++)
+                    {
+                        object weight = new object();
+                        if (this.FindRebro(arr[i, 0], arr[0, j], out weight))
+                        {
+                            arr[i, j] = weight.ToString();
+                        }
+                        else
+                        {
+                            arr[i, j] = "0";
+                        }
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 1; i < nodes.Count + 1; i++)
+                {
+                    for (int j = 1; j < nodes.Count + 1; j++)
+                    {
+                        object weight = new object();
+                        if (this.FindRebro(arr[i, 0], arr[0, j], out weight))
+                        {
+                            arr[i, j] = weight.ToString();
+                        }
+                        else if (this.FindRebro(arr[0, j], arr[i, 0], out weight))
+                        {
+                            arr[i, j] = weight.ToString();
+                        }
+                        else
+                        {
+                            arr[i, j] = "0";
+                        }
+                    }
+                }
+            }
+           
 
+            return arr;
+        }
         public bool AddRebro(string line)
         {
             bool flag = false;
@@ -147,7 +203,11 @@ namespace GraphTask3lvl
                 if (item.Key == vs[0])
                 {
                     string[] vsTemp = vs[1].Split('/');
-
+                    object o = new object();
+                    if(this.FindRebro(vs[0], vsTemp[0], out o))
+                    {
+                        return false;
+                    }
                     try
                     {
                         item.Value.inf.Add(vsTemp[0], vsTemp[1]);
@@ -205,7 +265,6 @@ namespace GraphTask3lvl
             {
                 bool flag1 = false,
                     flag2 = false;
-
                 foreach (var item in this.nodes)
                 {
                     if (item.Key.Equals(vs[0]))
@@ -221,31 +280,51 @@ namespace GraphTask3lvl
             }
         }
 
+        public bool FindNode(string nameNode)
+        {
+            Node node = new Node();
+            return nodes.TryGetValue(nameNode, out node);
+        }
+
+        public bool FindRebro(string nameNode, string nameRebr, out object weight)
+        {
+            Node node = new Node();
+            if (nodes.TryGetValue(nameNode, out node))
+            { 
+                return node.inf.TryGetValue(nameRebr, out weight);
+            }
+            else
+            {
+                weight = null;
+                return false;
+            }
+        }
+
         public void SaveAs()
         {
-            string FileName = @"C:\Users\orlovda\source\repos\graph\GraphTaskOrlov\GraphTask3lvl\output.txt";
+            string FileName = @"C:\Users\denzi\source\repos\GraphTask3lvl\GraphTask3lvl\output.txt";
             using (StreamWriter streamWriter = new StreamWriter(FileName))
             {
                 if (isOrient)
                 {
                     if (isSuspend)
                     {
-                        streamWriter.WriteLine(this.name + " " + "1" + " " + " 1");
+                        streamWriter.WriteLine(this.name + " " + "1" + " " + "1");
                     }
                     else
                     {
-                        streamWriter.WriteLine(this.name + " " + "1" + " " + " 0");
+                        streamWriter.WriteLine(this.name + " " + "1" + " " + "0");
                     }
                 }
                 else
                 {
                     if (isSuspend)
                     {
-                        streamWriter.WriteLine(this.name + " " + "0" + " " + " 1");
+                        streamWriter.WriteLine(this.name + " " + "0" + " " + "1");
                     }
                     else
                     {
-                        streamWriter.WriteLine(this.name + " " + "0" + " " + " 0");
+                        streamWriter.WriteLine(this.name + " " + "0" + " " + "0");
                     }
                 }
                 foreach (var item in this.nodes)

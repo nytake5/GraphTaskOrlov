@@ -10,7 +10,7 @@ namespace GraphTask3lvl
     {
         static void Main(string[] args)
         {
-            Graph graph = new Graph(@"C:\Users\orlovda\source\repos\graph\GraphTaskOrlov\GraphTask3lvl\input.txt");
+            Graph graph = new Graph(@"C:\Users\denzi\source\repos\GraphTask3lvl\GraphTask3lvl\input.txt");
 
             string line = Console.ReadLine();
             while (!Console.ReadKey().Equals(ConsoleKey.Escape))
@@ -24,8 +24,11 @@ namespace GraphTask3lvl
                 Console.WriteLine("2 - добавить ребро");
                 Console.WriteLine("3 - удалить вершину");
                 Console.WriteLine("4 - удалить ребро");
-                Console.WriteLine("5 - сохранить как");
-                int k = int.Parse(Console.ReadLine());
+                Console.WriteLine("5 - показать матрицу смежности");
+                Console.WriteLine("6 - сохранить как");
+                int k;
+                int.TryParse(Console.ReadLine(), out k);
+               
                 switch (k)
                 {
                     case 1:
@@ -83,10 +86,21 @@ namespace GraphTask3lvl
                         Console.WriteLine("");
                         break;
                     case 5:
+                        string[,] arr = graph.MatrixSmej();
+                        for (int i = 0; i < arr.GetLength(0); i++)
+                        {
+                            for (int j = 0; j < arr.GetLength(1); j++)
+                            {
+                                Console.Write(arr[i,j] + " ");
+                            }
+                            Console.WriteLine();
+                        }
+                        break;
+                    case 6:
                         graph.SaveAs();
                         break;
                     default:
-                        Console.WriteLine("");
+                        Console.WriteLine("Попробуйте снова");
                         break;
                 }
             }
