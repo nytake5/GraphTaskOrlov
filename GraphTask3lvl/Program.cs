@@ -29,6 +29,7 @@ namespace GraphTask3lvl
                 Console.WriteLine("7 - Вывести те вершины орграфа, которые " +
                     "являются одновременно заходящими и выходящими для заданной вершины.");
                 Console.WriteLine("8 - Вывести все вершины орграфа, смежные с данной.");
+                Console.WriteLine("9 - Построить орграф, являющийся обращением данного орграфа");
                 int k;
                 int.TryParse(Console.ReadLine(), out k);
                
@@ -118,6 +119,13 @@ namespace GraphTask3lvl
                         foreach (var item in arrAns)
                         {
                             Console.Write(item + " ");
+                        }
+                        break;
+                    case 9:
+                        Graph ans = graph.Reverse();
+                        foreach (var item in ans.GetGraph())
+                        {
+                            Console.WriteLine(item.Key + " " + item.Value.ToString());
                         }
                         break;
                     default:

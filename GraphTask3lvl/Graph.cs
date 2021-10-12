@@ -362,6 +362,24 @@ namespace GraphTask3lvl
             }
             return arr.ToArray();
         }
+        //4 task 1b
+        public Graph Reverse()
+        {
+            Graph ans = new Graph();
+            ans.name = String.Copy(this.name) + " " + "reverse";
+            foreach (var item in this.nodes)
+            {
+                ans.nodes.Add(String.Copy(item.Key), new Node());
+            }
+            foreach (var item in nodes)
+            {
+                foreach (var itemInf in item.Value.inf)
+                {
+                    ans.nodes[(string)itemInf.Key].inf.Add(item.Key, itemInf.Value);
+                }
+            }
+            return ans;
+        }
 
         public Dictionary<string, Node> GetGraph()
         {
