@@ -53,6 +53,15 @@ namespace GraphTask3lvl
         private bool isOrient = true;
         private bool isSuspend = true;
         public Dictionary<string, Node> nodes;
+        private Dictionary<string, bool> nov = new Dictionary<string, bool>();
+
+        public void InitialNov() 
+        {
+            foreach (var item in this.nodes)
+            {
+                nov.Add(item.Key, true);
+            }
+        }
         public Graph(string FileLine)
         {
             nodes = new Dictionary<string, Node>();
@@ -92,6 +101,7 @@ namespace GraphTask3lvl
                     nodes.Add(vs[0], tempNode);
                 }
             }
+            InitialNov();
         }
         public Graph()
         {
@@ -108,7 +118,35 @@ namespace GraphTask3lvl
                 Node valueNodes = new Node(item.Value);
                 this.nodes.Add(nameNodes, valueNodes);
             }
+            InitialNov();
+
         }
+
+
+        public void NovSet() //метод помечает все вершины графа как непросмотреные
+        {
+            foreach (var item in nov.Keys)
+            {
+                nov[item] = true;
+            }
+        }
+
+        public void Dfs(string v)
+        {
+            object o = new object();
+            nov[v] = false; //помечаем ее как просмотренную
+                            // в матрице смежности просматриваем строку с номером v
+            foreach (var u in nodes.Keys)
+            {
+                //если вершины v и u смежные, к тому же вершина u не просмотрена,
+                if ((this.FindRebro(v, u, out o)) && nov[u])
+                {
+                    Dfs(u); // то рекурсивно просматриваем вершину
+                }
+            }
+        }
+
+
         public bool AddNode(string line)
         {
             char[] masSplit = { '/', '-', '.', ',' };
@@ -300,6 +338,58 @@ namespace GraphTask3lvl
             }
         }
 
+        public int[,] FloydForArcs()
+        {
+            string[,] temp = MatrixSmej();
+            int[,] array = new int[temp.GetLength(0) - 1, temp.GetLength(1) - 1];
+            for (int l = 0; l < temp.GetLength(0) - 1; l++)
+            {
+                for (int q = 0; q < temp.GetLength(1) - 1; q++)
+                {
+                    array[l, q] = int.Parse(temp[l + 1, q + 1]);
+                }
+            }
+            int i, j, k;
+            int[,] a = new int[nodes.Count, nodes.Count];
+            for (i = 0; i < nodes.Count; i++)
+            {
+                for (j = 0; j < nodes.Count; j++)
+                {
+                    if (i == j)
+                    {
+                        a[i, j] = 0;
+                    }
+                    else
+                    {
+                        if (array[i, j] == 0)
+                        {
+                            a[i, j] = int.MaxValue;
+                        }
+                        else
+                        {
+                            a[i, j] = 1;
+                        }
+                    }
+                }
+            }
+            //осуществляем поиск кратчайших путей
+            for (k = 0; k < nodes.Count; k++)
+            {
+                for (i = 0; i < nodes.Count; i++)
+                {
+                    for (j = 0; j < nodes.Count; j++)
+                    {
+                        int distance = a[i, k] + a[k, j];
+                        if (a[i, j] > distance)
+                        {
+                            a[i, j] = distance;
+                        }
+                    }
+                }
+            }
+            return a;//в качестве результата возвращаем массив кратчайших путей между
+        } //всеми парами вершин
+
         public void SaveAs()
         {
             string FileName = @"C:\Users\denzi\source\repos\GraphTask3lvl\GraphTask3lvl\output.txt";
@@ -381,6 +471,49 @@ namespace GraphTask3lvl
             return ans;
         }
 
+        //7 task II 
+        public bool isHaveRoot()
+        {
+            foreach (var item in nodes.Keys)
+            {
+                Dfs(item);
+                bool flag = true;
+                foreach (var item2 in nov)
+                {
+                    if (item2.Value == true)
+                    {
+                        flag = false;
+                    }
+                }
+                if (flag == true)
+                {
+                    return true;
+                }
+                NovSet();
+            }
+            return false;
+        }
+
+        //31 task II 
+        public string[] ShortLength(string u)
+        {
+            string[] ans = new string[nodes.Count];
+            int k = 0;
+            foreach (var item in nodes)
+            {
+                if (item.Key == u)
+                {
+                    break;
+                }
+                k++;
+            }
+            int[,] temp = FloydForArcs();
+            for (int i = 0; i < nodes.Count; i++)
+            {
+                ans[i] = temp[i, k].ToString();
+            }
+            return ans;
+        }
         public Dictionary<string, Node> GetGraph()
         {
             return nodes;

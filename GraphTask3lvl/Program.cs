@@ -30,9 +30,10 @@ namespace GraphTask3lvl
                     "являются одновременно заходящими и выходящими для заданной вершины.");
                 Console.WriteLine("8 - Вывести все вершины орграфа, смежные с данной.");
                 Console.WriteLine("9 - Построить орграф, являющийся обращением данного орграфа");
+                Console.WriteLine("10 - Определить, имеет ли данный ацикличный орграф корень");
+                Console.WriteLine("11 - Вывести длины кратчайших (по числу дуг) путей от всех вершин до u");
                 int k;
                 int.TryParse(Console.ReadLine(), out k);
-               
                 switch (k)
                 {
                     case 1:
@@ -126,6 +127,30 @@ namespace GraphTask3lvl
                         foreach (var item in ans.GetGraph())
                         {
                             Console.WriteLine(item.Key + " " + item.Value.ToString());
+                        }
+                        break;
+                    case 10:
+                        if (graph.isHaveRoot())
+                        {
+                            Console.WriteLine("Имеет!");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Не имеет!");
+                        }
+                        break;
+                    case 11:
+                        Console.WriteLine("Введите название вершины:");
+                        string tmp = Console.ReadLine();
+                        while (!graph.FindNode(tmp))
+                        {
+                            Console.WriteLine("Попробуйте ещё раз");
+                            tmp = Console.ReadLine();
+                        }
+                        string[] vs = graph.ShortLength(tmp);
+                        for (int i = 0; i < vs.Length; i++)
+                        {
+                            Console.Write(vs[i] + " ");
                         }
                         break;
                     default:
