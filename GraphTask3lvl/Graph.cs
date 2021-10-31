@@ -11,20 +11,22 @@ namespace GraphTask3lvl
 {
     class Graph
     {
+        const int INFINT = int.MaxValue;
+        const double INFDOUBLE = double.MaxValue;
         public class Node
         {
-            public Dictionary<object, object> inf;
+            public Dictionary<string, object> inf;
             public Node()
             {
-                this.inf = new Dictionary<object, object>();
+                this.inf = new Dictionary<string, object>();
             }
-            public Node(Dictionary<object, object> inf)
+            public Node(Dictionary<string, object> inf)
             {
                 this.inf = inf;
             }
             public Node(Node node)
             {
-                this.inf = new Dictionary<object, object>(node.inf);
+                this.inf = new Dictionary<string, object>(node.inf);
             }
 
             public override string ToString()
@@ -91,7 +93,7 @@ namespace GraphTask3lvl
                 while ((line = streamReader.ReadLine()) != null)
                 {
                     string[] vs = line.Split(' ');
-                    Dictionary<object, object> infTemp = new Dictionary<object, object>();
+                    Dictionary<string, object> infTemp = new Dictionary<string, object>();
                     for (int i = 1; i < vs.Length; i++)
                     {
                         string[] vsTemp = vs[i].Split('/');
@@ -108,26 +110,27 @@ namespace GraphTask3lvl
             name = "";
             nodes = new Dictionary<string, Node>();
         }
-        public Graph(Graph graph)
-        {   
-            this.name = String.Copy(graph.name);
-            foreach (var item in graph.nodes)
+        public Graph Copy()
+        {
+            Graph graphAns = new Graph();
+            graphAns.name = String.Copy(this.name);
+            foreach (var item in this.nodes)
             {
                 string nameNodes = "";
                 nameNodes += item.Key;
                 Node valueNodes = new Node(item.Value);
-                this.nodes.Add(nameNodes, valueNodes);
+                graphAns.nodes.Add(nameNodes, valueNodes);
             }
-            InitialNov();
-
+            graphAns.InitialNov();
+            return graphAns;
         }
 
 
         public void NovSet() //метод помечает все вершины графа как непросмотреные
         {
-            foreach (var item in nov.Keys)
+            foreach (var item in nodes)
             {
-                nov[item] = true;
+                nov[item.Key] = true;
             }
         }
 
@@ -150,34 +153,30 @@ namespace GraphTask3lvl
         public bool AddNode(string line)
         {
             char[] masSplit = { '/', '-', '.', ',' };
-            bool flag = false;
+            bool flag = true;
             string[] vs = line.Split(' ');
             if (this.FindNode(vs[0]))
             {
                 return false;
             }
-            Dictionary<object, object> infTemp = new Dictionary<object, object>();
+            Dictionary<string, object> infTemp = new Dictionary<string, object>();
             for (int i = 1; i < vs.Length; i++)
             {
                 string[] vsTemp = vs[i].Split(masSplit);
-                try
+                if (vs[i] == "")
                 {
-                    infTemp.Add(vsTemp[0], vsTemp[1]);
-
-                    flag = true;
+                    break;
                 }
-                catch
-                {
-                    flag = false;
-                }
+                infTemp.Add(vsTemp[0], vsTemp[1]);
             }
             if (flag)
             {
-                nodes.Add(vs[0], new Node(infTemp));
+                this.nodes.Add(vs[0], new Node(infTemp));
             }
 
             return flag;
         }
+        
         public string[,] MatrixSmej()
         {
             string[] name = nodes.Keys.ToArray();
@@ -236,27 +235,74 @@ namespace GraphTask3lvl
             bool flag = false;
             string[] vs = line.Split(' ');
             //будем добавлять по названию вершины в графе: "имя вершины название_вершины/вес" 
-            foreach (var item in this.nodes)
+            if (isOrient)
             {
-                if (item.Key == vs[0])
+                foreach (var item in this.nodes)
                 {
-                    string[] vsTemp = vs[1].Split('/');
-                    object o = new object();
-                    if(this.FindRebro(vs[0], vsTemp[0], out o))
+                    if (item.Key == vs[0])
                     {
-                        return false;
-                    }
-                    try
-                    {
-                        item.Value.inf.Add(vsTemp[0], vsTemp[1]);
-                        flag = true;
-                    }
-                    catch
-                    {
-                        flag = false;
+                        string[] vsTemp = vs[1].Split('/');
+                        object o = new object();
+                        if (this.FindRebro(vs[0], vsTemp[0], out o))
+                        {
+                            return false;
+                        }
+                        try
+                        {
+                            item.Value.inf.Add(vsTemp[0], vsTemp[1]);
+                            flag = true;
+                        }
+                        catch
+                        {
+                            flag = false;
+                        }
                     }
                 }
             }
+            else
+            {
+                foreach (var item in this.nodes)
+                {
+                    string[] vsTemp;
+                    if (item.Key == vs[0])
+                    {
+                        vsTemp = vs[1].Split('/');
+                        object o = new object();
+                        if (this.FindRebro(vs[0], vsTemp[0], out o))
+                        {
+                            return false;
+                        }
+                        try
+                        {
+                            item.Value.inf.Add(vsTemp[0], vsTemp[1]);
+                            flag = true;
+                        }
+                        catch
+                        {
+                            flag = false;
+                        }
+                    }
+                    vsTemp = vs[1].Split('/');
+                    if (item.Key == vsTemp[0])
+                    {
+                        object o = new object();
+                        if (this.FindRebro(vsTemp[0], vs[0], out o))
+                        {
+                            return false;
+                        }
+                        try
+                        {
+                            item.Value.inf.Add(vs[0], vsTemp[1]);
+                            flag = true;
+                        }
+                        catch
+                        {
+                            flag = false;
+                        }
+                    }
+                }
+            }
+           
             return flag;
         }
 
@@ -335,6 +381,19 @@ namespace GraphTask3lvl
             {
                 weight = null;
                 return false;
+            }
+        }
+
+        public Node FirstOrDefailt() 
+        {
+            Node node = new Node();
+            if (nodes.Count == 0)
+            {
+                return new Node();
+            }
+            else
+            {
+                return nodes.Values.FirstOrDefault();
             }
         }
 
@@ -513,6 +572,84 @@ namespace GraphTask3lvl
                 ans[i] = temp[i, k].ToString();
             }
             return ans;
+        }
+
+        //Прим task III
+        public Graph AlgorithmPrima() 
+        {
+            Graph graphAns = new Graph
+            {
+                isOrient = false
+            };
+            Graph currGraph = this.Copy();
+            currGraph.NovSet();
+            graphAns.isSuspend = currGraph.isSuspend;
+            graphAns.name = String.Copy(currGraph.name + " Frame");
+            string line = currGraph.nodes.Keys.Last();
+
+            graphAns.nodes.Add(String.Copy(line), new Node());
+            int i = 0;
+            while (graphAns.nodes.Count < currGraph.nodes.Count  //пока количество вершин меньше чем в исходном 
+                && i < (Math.Pow(currGraph.nodes.Count, 2) + 1)) // пока не произошло n*n итераций, так как это максимально 
+            {                                               // количество итераций
+                string minName = "";
+                int min = INFINT;
+                foreach (var item in currGraph.nodes[line].inf)
+                {
+                    int curr = int.Parse(item.Value.ToString());
+                    if (curr < min && currGraph.nov[item.Key])
+                    {
+                        minName = String.Copy(item.Key);
+                        min = curr;
+                    }
+                }
+                if (min != INFINT) 
+                {  
+                    currGraph.nov[minName] = false;
+                    graphAns.AddRebro(String.Copy(line) + " " + minName + "/" + min.ToString());
+                    graphAns.AddNode(String.Copy(minName) + " " + line + "/" + min.ToString());
+                    
+                    currGraph.RemoveRebro(String.Copy(line) + " " + minName); 
+                    line = minName;
+                }
+                else
+                {
+                    foreach (var item in nov)
+                    {
+                        bool flag = false;
+                        if (!item.Value)
+                        {
+                            foreach (var elem in nov)
+                            {
+                                if (elem.Value)
+                                {
+                                    object o = new object();
+                                    flag = currGraph.FindRebro(item.Key, elem.Key, out o);
+                                    if (flag)
+                                    {
+                                        int curr = int.Parse(o.ToString());
+                                        if (min < curr)
+                                        {
+                                            minName = elem.Key;
+                                            min = curr;
+                                        }
+                                    }
+                                }
+                            }
+                            if (min != INFINT && flag)
+                            {
+                                currGraph.nov[minName] = false;
+                                graphAns.AddNode(String.Copy(item.Key) + " ");
+                                graphAns.AddRebro(String.Copy(minName) + " " + item.Key + "/" + min.ToString());
+                                currGraph.RemoveRebro(String.Copy(line) + " " + minName);
+                                line = minName;
+                            }
+                        }
+                    }
+                }
+                i++;
+            }
+            return graphAns;
         }
         public Dictionary<string, Node> GetGraph()
         {

@@ -32,6 +32,7 @@ namespace GraphTask3lvl
                 Console.WriteLine("9 - Построить орграф, являющийся обращением данного орграфа");
                 Console.WriteLine("10 - Определить, имеет ли данный ацикличный орграф корень");
                 Console.WriteLine("11 - Вывести длины кратчайших (по числу дуг) путей от всех вершин до u");
+                Console.WriteLine("12 - Вывести каркас минимального веса, полученный алгоритмом Прима");
                 int k;
                 int.TryParse(Console.ReadLine(), out k);
                 switch (k)
@@ -151,6 +152,14 @@ namespace GraphTask3lvl
                         for (int i = 0; i < vs.Length; i++)
                         {
                             Console.Write(vs[i] + " ");
+                        }
+                        break;
+                    case 12:
+                        Console.WriteLine("Каркас минимального веса:");
+                        Graph graphAns = graph.AlgorithmPrima();
+                        foreach (var item in graphAns.GetGraph())
+                        {
+                            Console.WriteLine(item.Key + " " + item.Value.ToString());
                         }
                         break;
                     default:
