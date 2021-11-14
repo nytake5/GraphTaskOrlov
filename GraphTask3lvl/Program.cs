@@ -10,7 +10,7 @@ namespace GraphTask3lvl
     {
         static void Main(string[] args)
         {
-            Graph graph = new Graph(@"C:\Users\denzi\source\repos\GraphTask3lvl\GraphTask3lvl\input.txt");
+            Graph graph = new Graph(@"C:\Users\denzi\source\repos\GraphTask3lvl\GraphTask3lvl\input1.txt");
 
             string line = Console.ReadLine();
             while (!Console.ReadKey().Equals(ConsoleKey.Escape))
@@ -33,6 +33,9 @@ namespace GraphTask3lvl
                 Console.WriteLine("10 - Определить, имеет ли данный ацикличный орграф корень");
                 Console.WriteLine("11 - Вывести длины кратчайших (по числу дуг) путей от всех вершин до u");
                 Console.WriteLine("12 - Вывести каркас минимального веса, полученный алгоритмом Прима");
+                Console.WriteLine("13 - Найти вершину, сумма длин кратчайших путей от которой до остальных вершин минимальна.");
+                Console.WriteLine("14 - Найти радиус графа — минимальный из эксцентриситетов его вершин.");
+                Console.WriteLine("15 - Вывести кратчайшие пути из вершин u1 и u2 до v.");
                 int k;
                 int.TryParse(Console.ReadLine(), out k);
                 switch (k)
@@ -148,10 +151,10 @@ namespace GraphTask3lvl
                             Console.WriteLine("Попробуйте ещё раз");
                             tmp = Console.ReadLine();
                         }
-                        string[] vs = graph.ShortLength(tmp);
-                        for (int i = 0; i < vs.Length; i++)
+                        Dictionary<string, int> vs = graph.ShortLength(tmp);
+                        foreach (var item in vs)
                         {
-                            Console.Write(vs[i] + " ");
+                            Console.WriteLine(item.Key + ": " + item.Value.ToString());
                         }
                         break;
                     case 12:
@@ -160,6 +163,30 @@ namespace GraphTask3lvl
                         foreach (var item in graphAns.GetGraph())
                         {
                             Console.WriteLine(item.Key + " " + item.Value.ToString());
+                        }
+                        break;
+                    case 13:
+                        Console.WriteLine("Искомая вершина:");
+                        Console.WriteLine(graph.ShortWayAtFloyd());
+                        break;
+                    case 14:
+                        string s1, s2;
+                        long rad = graph.FindRadius(out s1, out s2);
+                        Console.WriteLine(s1 + " " + s2 + " " + rad.ToString());
+                        break;
+                    case 15:
+                        Console.WriteLine("Введите три вершины через пробел");
+                        line = Console.ReadLine();
+                        string[] lineSplit = line.Split();
+                        Dictionary<string, List<string>> ans15 = graph.ShortCut(lineSplit[0], lineSplit[1], lineSplit[2]);
+                        for (int i = 0; i < 2; i++)
+                        {
+                            Console.WriteLine(lineSplit[i]);
+                            foreach (var item in ans15[lineSplit[i]])
+                            {
+                                Console.Write(" " + item);
+                            }
+                            Console.WriteLine();
                         }
                         break;
                     default:

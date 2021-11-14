@@ -64,6 +64,7 @@ namespace GraphTask3lvl
                 nov.Add(item.Key, true);
             }
         }
+        public int Count => this.nodes.Count;
         public Graph(string FileLine)
         {
             nodes = new Dictionary<string, Node>();
@@ -149,7 +150,31 @@ namespace GraphTask3lvl
             }
         }
 
-
+        public Dictionary<string, int> Bfs(string v)
+        {
+            Queue<string> q = new Queue<string>();
+            Dictionary<string, int> qDc = new Dictionary<string, int>();
+            int num = 0;
+            qDc.Add(v, num);
+            q.Enqueue(v);
+            nov[v] = false;
+            while (q.Count != 0)
+            {
+                v = q.Dequeue();
+                num++;
+                foreach (var u in nodes.Keys)
+                {
+                    object o = new object();
+                    if (FindRebro(v, u, out o) && nov[u])
+                    {
+                        q.Enqueue(u);
+                        nov[u] = false;
+                        qDc.Add(u, num);
+                    }
+                }
+            }
+            return qDc;
+        }
         public bool AddNode(string line)
         {
             char[] masSplit = { '/', '-', '.', ',' };
@@ -383,7 +408,181 @@ namespace GraphTask3lvl
                 return false;
             }
         }
+        public Dictionary<string, Dictionary<string, long>> Floyd()
+        {
+            Dictionary<string ,Dictionary<string, long>> lstFloyd = new Dictionary<string, Dictionary<string, long>>();
+            foreach (var item in this.nodes.Keys)
+            {
+                lstFloyd.Add(item, new Dictionary<string, long>());
+                foreach (var elem in this.nodes.Keys)
+                {
+                    if (item.Equals(elem))
+                    {
+                        lstFloyd[item].Add(elem, 0);
+                    }
+                    else
+                    {
+                        object o;
+                        if (!this.FindRebro(item, elem, out o))
+                        {
+                            lstFloyd[item].Add(elem, int.MaxValue);
+                        }
+                        else
+                        {
+                            lstFloyd[item].Add(elem, int.Parse(o.ToString()));
+                        }
+                    }
+                }
+            }
 
+            foreach (var item1 in this.nodes.Keys)//k
+            {
+                foreach (var item2 in this.nodes.Keys)//i
+                {
+                    foreach (var item3 in this.nodes.Keys)//j
+                    {
+                        long distance = lstFloyd[item2][item1] + lstFloyd[item1][item3];
+                        if (distance < lstFloyd[item2][item3])
+                        {
+                            lstFloyd[item2][item3] = distance;
+                        }
+                    }
+                }
+            }
+
+            return lstFloyd;
+        }
+
+        public Dictionary<string, long> Dijkstr(string v, out Dictionary<string, string> p)
+        {
+            NovSet();
+            Dictionary<string, Dictionary<string, long>> lstDijk = new Dictionary<string, Dictionary<string, long>>();
+            nov[v] = false;
+            foreach (var item in this.nodes.Keys)
+            {
+                lstDijk.Add(item, new Dictionary<string, long>());
+                foreach (var elem in this.nodes.Keys)
+                {
+                    if (item.Equals(elem))
+                    {
+                        lstDijk[item].Add(elem, 0);
+                    }
+                    else
+                    {
+                        object o;
+                        if (!this.FindRebro(item, elem, out o))
+                        {
+                            lstDijk[item].Add(elem, int.MaxValue);
+                        }
+                        else
+                        {
+                            lstDijk[item].Add(elem, int.Parse(o.ToString()));
+                        }
+                    }
+                }
+            }
+            Dictionary<string, long> d = new Dictionary<string, long>();
+            p = new Dictionary<string, string>();
+            foreach (var item in this.nodes.Keys)
+            {
+                if (!item.Equals(v))
+                {
+                    d.Add(item, lstDijk[v][item]);
+                    p.Add(item, v);
+                }
+            }
+            for (int i = 0; i < this.Count - 1; i++)
+            {
+                long min = int.MaxValue;
+                string w = "";
+                foreach (var item in this.nodes.Keys)
+                {
+                    if (nov[item] && min > d[item])
+                    {
+                        min = d[item];
+                        w = item;
+                    }
+                }
+                nov[w] = false;
+                if (!String.IsNullOrEmpty(w))
+                {
+                    foreach (var item in this.nodes.Keys)
+                    {
+                        long distance = d[w] + lstDijk[w][item];
+                        if (nov[item] && d[item] > distance)
+                        {
+                            d[item] = distance;
+                            p[item] = w;
+                        }
+                    }
+                }
+            }
+            return d;
+        }
+
+        public void WayDijkstra(string a, string b, Dictionary<string, string> p, ref Stack<string> items)
+        {
+            items.Push(b);
+            if (a == p[b])
+            {
+                items.Push(a);
+            }
+            else
+            {
+                WayDijkstra(a, p[b], p, ref items);
+            }
+        }
+
+
+        public Dictionary<string, long> FordBellman(string v, out Dictionary<string, string> p)
+        {
+            NovSet();
+            Dictionary<string, long> d = new Dictionary<string, long>();
+            p = new Dictionary<string, string>();
+            foreach (var item in this.nodes.Keys)
+            {
+                if (!item.Equals(v))
+                {
+                    d.Add(item, int.MaxValue);
+                    p.Add(item, v);
+                }
+                else
+                {
+                    d.Add(item, 0);
+                    p.Add(item, v);
+                }
+            }
+            var lstEdge = this.ListEdge();
+            for (int i = 0; i < this.Count - 1; i++)
+            {
+                foreach (var item in lstEdge)
+                {
+                    if (d[item.Key] < int.MaxValue)
+                    {
+                        if (d[item.Value.Key] > d[item.Key] + item.Value.Value)
+                        {
+                            d[item.Value.Key] = d[item.Key] + item.Value.Value;
+                            p[item.Value.Key] = item.Key;
+                        }
+                    }
+                }
+            }
+            return d;
+        }
+        
+        public List<KeyValuePair<string, KeyValuePair<string, int>>> ListEdge()
+        {
+            var res = new List<KeyValuePair<string, KeyValuePair<string, int>>>();
+            foreach (var item1 in this.nodes.Keys)
+            {
+                foreach (var item2 in this.nodes[item1].inf)
+                {
+                    res.Add(new KeyValuePair<string, KeyValuePair<string, int>>(
+                        item1, new KeyValuePair<string, int>(item2.Key, int.Parse(item2.Value.ToString()))));
+                }
+            }
+            return res;
+        }
         public Node FirstOrDefailt() 
         {
             Node node = new Node();
@@ -396,59 +595,6 @@ namespace GraphTask3lvl
                 return nodes.Values.FirstOrDefault();
             }
         }
-
-        public int[,] FloydForArcs()
-        {
-            string[,] temp = MatrixSmej();
-            int[,] array = new int[temp.GetLength(0) - 1, temp.GetLength(1) - 1];
-            for (int l = 0; l < temp.GetLength(0) - 1; l++)
-            {
-                for (int q = 0; q < temp.GetLength(1) - 1; q++)
-                {
-                    array[l, q] = int.Parse(temp[l + 1, q + 1]);
-                }
-            }
-            int i, j, k;
-            int[,] a = new int[nodes.Count, nodes.Count];
-            for (i = 0; i < nodes.Count; i++)
-            {
-                for (j = 0; j < nodes.Count; j++)
-                {
-                    if (i == j)
-                    {
-                        a[i, j] = 0;
-                    }
-                    else
-                    {
-                        if (array[i, j] == 0)
-                        {
-                            a[i, j] = int.MaxValue;
-                        }
-                        else
-                        {
-                            a[i, j] = 1;
-                        }
-                    }
-                }
-            }
-            //осуществляем поиск кратчайших путей
-            for (k = 0; k < nodes.Count; k++)
-            {
-                for (i = 0; i < nodes.Count; i++)
-                {
-                    for (j = 0; j < nodes.Count; j++)
-                    {
-                        int distance = a[i, k] + a[k, j];
-                        if (a[i, j] > distance)
-                        {
-                            a[i, j] = distance;
-                        }
-                    }
-                }
-            }
-            return a;//в качестве результата возвращаем массив кратчайших путей между
-        } //всеми парами вершин
-
         public void SaveAs()
         {
             string FileName = @"C:\Users\denzi\source\repos\GraphTask3lvl\GraphTask3lvl\output.txt";
@@ -554,22 +700,22 @@ namespace GraphTask3lvl
         }
 
         //31 task II 
-        public string[] ShortLength(string u)
+        public Dictionary<string, int> ShortLength(string u)
         {
-            string[] ans = new string[nodes.Count];
-            int k = 0;
-            foreach (var item in nodes)
+            NovSet();
+            Dictionary<string, int> ans = new Dictionary<string, int>();
+            foreach (var item in this.nodes.Keys)
             {
-                if (item.Key == u)
+                NovSet();
+                Dictionary<string, int> dc = Bfs(item);
+                if (dc.ContainsKey(u))
                 {
-                    break;
+                    ans.Add(item, dc[u]);
                 }
-                k++;
-            }
-            int[,] temp = FloydForArcs();
-            for (int i = 0; i < nodes.Count; i++)
-            {
-                ans[i] = temp[i, k].ToString();
+                else
+                {
+                    ans.Add(item, -1);
+                }
             }
             return ans;
         }
@@ -650,6 +796,88 @@ namespace GraphTask3lvl
                 i++;
             }
             return graphAns;
+        }
+
+        //Найти вершину, сумма длин кратчайших путей от которой до остальных вершин минимальна.
+        //6 task 4a алгоритм флойда
+        public string ShortWayAtFloyd()
+        {
+            string res = "";
+            Dictionary<string, Dictionary<string, long>> masFloyd = Floyd();
+            long min = long.MaxValue;
+            foreach (var item1 in masFloyd)
+            {
+                long sum = 0;
+                foreach (var item2 in item1.Value)
+                {
+                    sum += item2.Value;
+                }
+                if (min > sum)
+                {
+                    min = sum;
+                    res = item1.Key;
+                }
+            }
+            return res;
+        }
+        //Найти радиус графа — минимальный из эксцентриситетов его вершин.
+        //10 task 4b алгортим Беллмана-Форда
+        public long FindRadius(out string s1, out string s2)
+        {
+            
+            long min = long.MaxValue;
+            s1 = "";
+            s2 = "";
+            foreach (var item1 in this.nodes.Keys)
+            {
+                long max = long.MinValue;
+                Dictionary<string, string> p;
+                Dictionary<string, long> tmp = FordBellman(item1, out p);
+                string s1t = "";
+                string s2t = "";
+                foreach (var item2 in tmp)
+                {
+                    if (max < item2.Value && max < int.MaxValue)
+                    {
+                        max = item2.Value;
+                        s1t = item1;
+                        s2t = item2.Key;
+                    }
+                }
+                if (max < min)
+                {
+                    min = max;
+                    s1 = s1t;
+                    s2 = s2t;
+                }
+            }
+            return min; 
+        }
+
+        //Вывести кратчайшие пути из вершин u1 и u2 до v.
+        //15 task 4c алгоритм Дейкстры
+        public Dictionary<string, List<string>> ShortCut(string u1, string u2, string v)
+        {
+            Dictionary<string, List<string>> res = new Dictionary<string, List<string>>();
+            Dictionary<string, string> p1;
+            Stack<string> st1 = new Stack<string>();
+            Dictionary<string, long> massFirst = Dijkstr(u1, out p1);
+            res.Add(u1, new List<string>());
+            WayDijkstra(u1, v, p1, ref st1);
+            while (st1.Count != 0)
+            {
+                res[u1].Add(st1.Pop());
+            }
+            Dictionary<string, string> p2;
+            Stack<string> st2 = new Stack<string>();
+            Dictionary<string, long> massSec = Dijkstr(u2, out p2);
+            res.Add(u2, new List<string>());
+            WayDijkstra(u2, v, p2, ref st2);
+            while (st2.Count != 0)
+            {
+                res[u2].Add(st2.Pop());
+            }
+            return res;
         }
         public Dictionary<string, Node> GetGraph()
         {
