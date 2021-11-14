@@ -1,0 +1,6 @@
+﻿Russia 1 1
+saratov moskva/1700 kiev/100 piter/700 samara/1400
+moskva
+piter moskva/700
+samara piter/1200
+kiev samara/500 moskva/1500

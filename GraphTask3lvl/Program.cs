@@ -10,7 +10,7 @@ namespace GraphTask3lvl
     {
         static void Main(string[] args)
         {
-            Graph graph = new Graph(@"C:\Users\denzi\source\repos\GraphTask3lvl\GraphTask3lvl\input1.txt");
+            Graph graph = new Graph(@"C:\Users\denzi\source\repos\GraphTask3lvl\GraphTask3lvl\input2.txt");
 
             string line = Console.ReadLine();
             while (!Console.ReadKey().Equals(ConsoleKey.Escape))
